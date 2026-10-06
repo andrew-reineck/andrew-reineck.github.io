@@ -412,5 +412,56 @@
             document.documentElement.classList.toggle('light');
         });
     </script>
+
+<section id="comments" class="section">
+  <div class="section-title">
+    <h2><i class="lucide-message-square"></i> Guestbook</h2>
+    <div class="title-bar"></div>
+  </div>
+
+  <div class="card" style="padding: 1.5rem;">
+    <form id="comment-form" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem;">
+      <input type="text" id="comment-name" placeholder="Your Name" required style="padding: 0.75rem; background: var(--bg); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;">
+      <textarea id="comment-text" rows="3" placeholder="Leave a comment..." required style="padding: 0.75rem; background: var(--bg); border: 1px solid var(--border-color); color: #fff; border-radius: 6px;"></textarea>
+      <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Post Comment</button>
+    </form>
+
+    <div id="comments-list" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('comment-form');
+  const list = document.getElementById('comments-list');
+
+  // Load comments from LocalStorage
+  const saved = JSON.parse(localStorage.getItem('guestbook_comments') || '[]');
+  
+  function render() {
+    list.innerHTML = saved.map(c => `
+      <div style="background: var(--bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color);">
+        <strong style="color: var(--accent);">${escapeHtml(c.name)}</strong>
+        <span style="font-size: 0.8rem; opacity: 0.6; margin-left: 0.5rem;">${c.date}</span>
+        <p style="margin-top: 0.5rem; color: #ccc;">${escapeHtml(c.text)}</p>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('comment-name').value;
+    const text = document.getElementById('comment-text').value;
+    saved.unshift({ name, text, date: new Date().toLocaleDateString() });
+    localStorage.setItem('guestbook_comments', JSON.stringify(saved));
+    form.reset();
+    render();
+  });
+
+  render();
+</script>
 </body>
 </html>
